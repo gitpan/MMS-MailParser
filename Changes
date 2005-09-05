@@ -1,5 +1,7 @@
 Revision history for MMS-MailParser
 
+0.02    02-Sep-2005 / 21:40
+        Renamed methods (creating some depricated versions), tidied up and corrected pod.  Modified header method calls to allow from new naming scheme.
 0.01    12-Aug-2005 / 15:40
         First version, released on an unsuspecting world.
 

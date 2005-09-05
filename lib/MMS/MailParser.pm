@@ -20,11 +20,11 @@ MMS::MailParser - A class for parsing MMS (or picture) messages.
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -32,19 +32,19 @@ This class takes an MMS message and parses it into two 'standard' formats (an MM
 
 =head2 Code usage example 
 
-This example demonstrates the use of the two stage parse.  The first pass provides an MMS::MailMessage object that is then passed through to the providermailparse message that attempts to determine the Network provider the message was sent through and extracts the relevant information and places it into an MMS::MailMessage::ProviderParsed object.
+This example demonstrates the use of the two stage parse.  The first pass provides an MMS::MailMessage object that is then passed through to the provider_mail_parse message that attempts to determine the Network provider the message was sent through and extracts the relevant information and places it into an MMS::MailMessage::ProviderParsed object.
 
     use MMS::MailParser;
     my $mms = MMS::MailParser->new();
     my $message = $mms->parse(\*STDIN);
     if (defined($message)) {
-      my $parsed = $mms->providermailparse;
+      my $parsed = $mms->provider_mail_parse;
       print $parsed->subject."\n";
     }
 
 =head2 Examples of input
 
-    MMS::Parser has the same input methods as MIME::Parser.
+MMS::Parser has the same input methods as MIME::Parser.
 
     # Parse from a filehandle:
     $entity = $parser->parse(\*STDIN);
@@ -60,24 +60,24 @@ This example demonstrates the use of the two stage parse.  The first pass provid
 
 =head2 Examples of parser modification
 
-MMS::MailParser uses MIME::Parser as it's parsing engine.  The MMS::MailParser class creates it's own MIME::Parser object if one is not passed in via the new or mimeparser method.  There are a number of reasons for providing your own parser such as forcing all attachment storage to be done in memory than on disk (providing a speed increase to your application at the cost of memory usage).
+MMS::MailParser uses MIME::Parser as it's parsing engine.  The MMS::MailParser class creates it's own MIME::Parser object if one is not passed in via the new or mime_parser method.  There are a number of reasons for providing your own parser such as forcing all attachment storage to be done in memory than on disk (providing a speed increase to your application at the cost of memory usage).
 
     my $parser = new MIME::Parser;
     $parser->output_to_core(1);
     my $mmsparser = new MMS::MailParser;
-    $mmsparser->mimeparser($parser);
+    $mmsparser->mime_parser($parser);
     my $message = $mmsparser->parse(\*STDIN);
     if (defined($message)) {
-      my $parsed = $mms->providermailparse;
+      my $parsed = $mms->provider_mail_parse;
     }
 
 =head2 Examples of error handling
-    
-The parser contains an error stack and will ultimately return an undef value from any of the main parse methods if an error occurs.  The last error message can be retreived by calling lasterror method.
+
+The parser contains an error stack and will ultimately return an undef value from any of the main parse methods if an error occurs.  The last error message can be retreived by calling last_error method.
 
     my $message = $mmsparser->parse(\*STDIN);
     unless (defined($message)) {
-      print STDERR $mmsparser->lasterror."\n";
+      print STDERR $mmsparser->last_error."\n";
       exit(0);
     }
 
@@ -90,12 +90,12 @@ There are a small set of miscellaneous methods available.  The output_dir method
 
     # Set an output directory for MIME::Parser 
     $mmsparser->output_dir('/tmp');
-    
+
     # Get/set an array reference to the error stack
     my $errors = $mmsparser->errors;
 
     # Get/set the MIME::Parser object used by MMS::Parser
-    $mmsparser->mimeparser($parser);
+    $mmsparser->mime_parser($parser);
 
 =head2 Tutorial
 
@@ -103,11 +103,11 @@ A thorough tutorial can be accessed at http://www.robl.co.uk/redirects/articles/
 
 =head1 METHODS
 
- The following are the top-level methods of MMS::MailParser object.
+The following are the top-level methods of MMS::MailParser object.
 
 =head2 Constructor
 
-=over 
+=over
 
 =item new()
 
@@ -115,7 +115,7 @@ Return a new MMS::MailParser object. Valid attributes are:
 
 =over
 
-=item mimeparser MIME::Parser
+=item mime_parser MIME::Parser
 
 Passed as an array reference, parser specifies the MIME::Parser object to use instead of MMS::MailParser creating it's own.
 
@@ -147,33 +147,57 @@ Returns an MMS::MailMessage object by parsing the file specified in EXPR
 
 Returns an MMS::MailMessage object by parsing the header and body file specified in HEADFILE and BODYFILE
 
-=item providermailparse MMS::MailMessage
+=item provider_mail_parse MMS::MailMessage
 
-Returns an MMS::MailMessage::ProviderParsed object by attempting to discover the network provider the message was sent through and parsing through the appropriate MMS::ProviderMailParser.  If an MMS::MailMessage object is supplied as an argument then the providermailparse method will parse the supplied MMS::MailMessage object.  If a providermailparser has been set via the providermailparser method then that parser will be used by providermailparse instead of attempting to discover the network provider from the MMS::MailMessage.
+Returns an MMS::MailMessage::ProviderParsed object by attempting to discover the network provider the message was sent through and parsing through the appropriate MMS::ProviderMailParser.  If an MMS::MailMessage object is supplied as an argument then the provider_mail_parse method will parse the supplied MMS::MailMessage object.  If a providermailparser has been set via the provider_mail_parser method then that parser will be used by the provider_mail_parse method instead of attempting to discover the network provider from the MMS::MailMessage.
 
 =item output_dir DIRECTORY
 
 Returns the output_dir parameter used with the MIME::Parser object when invoked with no argument supplied.  When an argument is supplied it sets the output_dir used by the MIME::Parser to the value of the argument supplied.
 
-=item mimeparser MIME::Parser
+=item mime_parser MIME::Parser
 
 Returns the MIME::Parser object used by MMS::MailParser (if created) when invoked with no argument supplied.  When an argument is supplied it sets the MIME::Parser object used by MMS::MailParser to parse messages.
 
-=item providermailparser CLASSNAME
+=item provider_mail_parser MMS::ProviderMailParser
 
-Returns a string denoting the currently set providermailparser when invoked with no argument supplied.  When an argument is supplied it sets the providermailparser classname used to parse messages (e.g. 'MMS::ProviderMailParser::UKVodafone').
+Returns an object for the currently set providermailparser when invoked with no argument supplied.  When an argument is supplied it sets the providermailparser to the supplied object.
 
 =item errors 
 
 Returns the error stack used by the MMS::MailParser object as an array reference.
 
-=item lasterror
+=item last_error
 
 Returns the last error from the stack.
 
 =item debug INTEGER
 
 Returns a number indicating whether STDERR debugging output is active (1) or not (0).  When an argument is supplied it sets the debug property to that value.
+
+=back
+
+=head2 Deprecated Methods
+
+Methods listed here are maintained for backwards compatibility and should not be used in new code as they may be removed in future versions.
+
+=over
+
+=item lasterror
+
+Equivalent to last_error
+
+=item mimeparser
+
+Equivalent to mime_parser
+
+=item providermailparser
+
+Equivalent to provider_mail_parser
+
+=item providermailparse
+
+Equivalent to provider_mail_parse
 
 =back
 
@@ -217,10 +241,10 @@ sub new {
   my $self = {};
   bless $self, $type;
 
-  if (exists $args->{mimeparser}) {
-    $self->{mimeparser} = $args->{mimeparser};
+  if (exists $args->{mime_parser}) {
+    $self->{mime_parser} = $args->{mime_parser};
   } else {
-    $self->{mimeparser} = undef;
+    $self->{mime_parser} = undef;
   }
 
   if (exists $args->{debug}) {
@@ -280,17 +304,17 @@ sub _parse {
   my $self = shift;
   my $in = shift;
 
-  unless (defined $self->mimeparser) {
+  unless (defined $self->mime_parser) {
     my $parser = new MIME::Parser;
     $parser->ignore_errors(1);
-    $self->{mimeparser} = $parser;
+    $self->{mime_parser} = $parser;
   }
 
   if (defined $self->output_dir) {
-    $self->{mimeparser}->output_dir($self->output_dir);
+    $self->{mime_parser}->output_dir($self->output_dir);
   }
 
-  unless (defined $self->mimeparser) {
+  unless (defined $self->mime_parser) {
     $self->_adderror("Failed to create parser");
     return undef;
   }
@@ -302,7 +326,7 @@ sub _parse {
 
   print STDERR "Created MMS::MailMessage\n" if ($self->debug);
 
-  my $parsed = eval { $self->{mimeparser}->parse($in) };
+  my $parsed = eval { $self->{mime_parser}->parse($in) };
   if (defined $@ && $@) {
     $self->_adderror($@);
   }
@@ -313,7 +337,7 @@ sub _parse {
 
   print STDERR "Parsed message\n" if ($self->debug);
 
-  unless ($self->{message}->isvalid) {
+  unless ($self->{message}->is_valid) {
     $self->_adderror("Parsed message is not valid");
     print STDERR "Parsed message is not valid\n" if ($self->debug);
     return undef;
@@ -338,18 +362,18 @@ sub _recursemessage {
   print STDERR "Parsing MIME Message\n" if ($self->debug);
 
   my $header = $mime->head;
-  unless (defined($self->{message}->headerfrom)) {
-    $self->{message}->headerdatetime($header->get('Date'));
-    $self->{message}->headerfrom($header->get('From'));
-    $self->{message}->headerto($header->get('To'));
-    $self->{message}->headersubject($header->get('Subject'));
+  unless (defined($self->{message}->header_from)) {
+    $self->{message}->header_datetime($header->get('Date'));
+    $self->{message}->header_from($header->get('From'));
+    $self->{message}->header_to($header->get('To'));
+    $self->{message}->header_subject($header->get('Subject'));
     print STDERR "Parsed Headers\n" if ($self->debug);
   }
 
   my @multiparts;
 
   if($mime->parts == 0) {
-    $self->{message}->headertext($mime->bodyhandle->as_string);
+    $self->{message}->header_text($mime->bodyhandle->as_string);
     print STDERR "No parts to MIME mail - grabbing header text\n" if ($self->debug);
     $mime->bodyhandle->purge;
   }
@@ -361,10 +385,10 @@ sub _recursemessage {
         print STDERR "Message contains ".$part->mime_type."\n" if ($self->debug);
 
         if ($part->mime_type eq 'text/plain') {
-          if (defined($self->{message}->headertext())) {
-            $self->{message}->headertext(($self->{message}->headertext()) . $bh->as_string);
+          if (defined($self->{message}->header_text())) {
+            $self->{message}->header_text(($self->{message}->header_text()) . $bh->as_string);
           } else {
-            $self->{message}->headertext($bh->as_string);
+            $self->{message}->header_text($bh->as_string);
           }
           $bh->purge;
           next;
@@ -399,10 +423,10 @@ sub _decipher {
     return undef;
   }
 
-  if (defined($self->providermailparser)) {
+  if (defined($self->provider_mail_parser)) {
     my $message;
-    #eval( 'require '.$self->providermailparser.';'.'$message='.$self->providermailparser.'::parse($self->{message})');
-    $message = $self->providermailparser->parse($self->{message});
+    #eval( 'require '.$self->provider_mail_parser.';'.'$message='.$self->provider_mail_parser.'::parse($self->{message})');
+    $message = $self->provider_mail_parser->parse($self->{message});
 
     unless (defined $message) {
       print STDERR "Failed to create custom ProviderParser\n" if ($self->debug);
@@ -414,8 +438,8 @@ sub _decipher {
     return $message;
   }
 
-  if ($self->{message}->headerfrom =~ /vodafone.co.uk$/) {
-    print STDERR "Vodafone message type detected\n" if ($self->debug);
+  if ($self->{message}->header_from =~ /vodafone.co.uk$/) {
+    print STDERR "UKVodafone message type detected\n" if ($self->debug);
     return MMS::ProviderMailParser::UKVodafone::parse($self->{message});
   } else {
     print STDERR "No message type detected using default parser\n" if ($self->debug);
@@ -424,7 +448,7 @@ sub _decipher {
 
 }
 
-sub providermailparse {
+sub provider_mail_parse {
 
   my $self = shift;
   my $message = shift;
@@ -463,12 +487,12 @@ sub debug {
   $self->{debug}=$debug;
 }
 
-sub mimeparser {
+sub mime_parser {
 
   my $self = shift;
 
-  if (@_) { $self->{mimeparser} = shift }
-  return $self->{mimeparser};
+  if (@_) { $self->{mime_parser} = shift }
+  return $self->{mime_parser};
 
 }
 
@@ -492,7 +516,7 @@ sub errors {
 
 }
 
-sub lasterror {
+sub last_error {
 
   my $self = shift;
 
@@ -513,13 +537,29 @@ sub output_dir {
 
 }
 
-sub providermailparser {
+sub provider_mail_parser {
 
   my $self = shift;
 
-  if (@_) { $self->{providermailparser} = shift }
-  return $self->{providermailparser};
+  if (@_) { $self->{provider_mail_parser} = shift }
+  return $self->{provider_mail_parser};
 
+}
+
+# Depricated Methods ############
+#
+
+sub lasterror {
+  last_error(@_);
+}
+sub mimeparser {
+  mime_parser(@_);
+}
+sub providermailparser {
+  provider_mail_parser(@_);
+}
+sub providermailparse {
+  provider_mail_parse(@_);
 }
 
 

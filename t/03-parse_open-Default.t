@@ -20,9 +20,9 @@ SKIP: {
   $mmsparser = new MMS::MailParser;
   $message = $mmsparser->parse_open('t/msgs/Default');
   isa_ok($message, 'MMS::MailMessage');
-  is($message->isvalid,1);
-  $parsed = $mmsparser->providermailparse;
+  is($message->is_valid,1);
+  $parsed = $mmsparser->provider_mail_parse;
   isa_ok($parsed, 'MMS::MailMessage::ProviderParsed');
-  is($parsed->isvalid,1);
+  is($parsed->is_valid,1);
 
 }
