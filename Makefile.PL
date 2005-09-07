@@ -11,7 +11,9 @@ WriteMakefile(
     PREREQ_PM => {
         'Test::More' => 0,
 	'MMS::MailMessage' => 0.02,
-	'MIME::Parser' => 0,
+	'MMS::MailMessage::ProviderParsed' => 0.02,
+	'MIME::Parser' => 5.4,
+	'MMS::ProviderMailParser' => 0.02,
     },
     dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
     clean               => { FILES => 'MMS-MailParser-*' },

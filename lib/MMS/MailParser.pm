@@ -7,11 +7,11 @@ use IO::File;
 use MIME::Parser;
 
 use MMS::MailMessage;
+use MMS::ProviderMailParser;
 
 #  These are eval'd so the user doesn't have to install all ProviderParsers
 eval {
-  use MMS::ProviderMailParser;
-  use MMS::ProviderMailParser::UKVodafone;
+  require MMS::ProviderMailParser::UKVodafone;
 };
 
 =head1 NAME
@@ -20,11 +20,11 @@ MMS::MailParser - A class for parsing MMS (or picture) messages.
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 SYNOPSIS
 

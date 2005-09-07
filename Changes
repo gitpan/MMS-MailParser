@@ -1,5 +1,7 @@
 Revision history for MMS-MailParser
 
+0.03    06-Sep-2005 / 22:40
+	Added more dependancies to make file and modified tests to fix CPAN installs.  Also changed use to require in eval block for providerparsers to stop errors.
 0.02    02-Sep-2005 / 21:40
         Renamed methods (creating some depricated versions), tidied up and corrected pod.  Modified header method calls to allow from new naming scheme.
 0.01    12-Aug-2005 / 15:40

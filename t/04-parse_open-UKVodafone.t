@@ -12,11 +12,9 @@ SKIP: {
 
   eval {
     require MMS::ProviderMailParser::UKVodafone;
-    require MMS::MailMessage;
-    require MMS::MailMessage::ProviderParsed;
   };
 
-  skip "MMS::* not installed", 4 if $@;
+  skip "MMS::ProviderMailParser::UKVodafone not installed", 4 if $@;
 
   $parser = new MIME::Parser;
   $mmsparser = MMS::MailParser->new(mimeparser=>$parser);

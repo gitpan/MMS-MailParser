@@ -8,21 +8,11 @@ my $mmsparser;
 my $message;
 my $parsed;
 
-SKIP: {
+$mmsparser = new MMS::MailParser;
+$message = $mmsparser->parse_open('t/msgs/Default');
+isa_ok($message, 'MMS::MailMessage');
+is($message->is_valid,1);
+$parsed = $mmsparser->provider_mail_parse;
+isa_ok($parsed, 'MMS::MailMessage::ProviderParsed');
+is($parsed->is_valid,1);
 
-  eval {
-    require MMS::ProviderMailParser;
-    require MMS::MailMessage;
-    require MMS::MailMessage::ProviderParsed;
-  };
-
-  skip "MMS::* not installed", 4 if $@;
-  $mmsparser = new MMS::MailParser;
-  $message = $mmsparser->parse_open('t/msgs/Default');
-  isa_ok($message, 'MMS::MailMessage');
-  is($message->is_valid,1);
-  $parsed = $mmsparser->provider_mail_parse;
-  isa_ok($parsed, 'MMS::MailMessage::ProviderParsed');
-  is($parsed->is_valid,1);
-
-}
